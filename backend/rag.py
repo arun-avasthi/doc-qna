@@ -9,23 +9,30 @@ from langchain_community.document_loaders import (
     TextLoader
 )
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_core.documents import Document
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from .db import update_document_status
 import requests
 from urllib.parse import urlparse
+from pydantic import SecretStr
 
 
 load_dotenv()
 
+google_api_key_value = os.getenv("GOOGLE_API_KEY")
+if not google_api_key_value:
+    raise ValueError("GOOGLE_API_KEY environment variable is not set.")
+
 llm = init_chat_model(
     "gemini-2.5-flash",
     model_provider="google_genai",
-    api_key=os.getenv("GOOGLE_API_KEY"),
+    api_key=google_api_key_value,
 )
 
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+embeddings = GoogleGenerativeAIEmbeddings(
+    model="models/gemini-embedding-001",
+    google_api_key=SecretStr(google_api_key_value),
+)
 
 def get_vector_store(session_id: str):
     return Chroma(
