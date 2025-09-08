@@ -20,6 +20,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { BrainIcon } from "lucide-react"
+import getConfig from '@/lib/config'
 
 export function AppSidebar() {
     const { sessionId, setSessionId, chatSessions, fetchChatSessions } = useChatSession();
@@ -42,7 +43,8 @@ export function AppSidebar() {
 
     const handleDeleteSession = async (id: string) => {
         try {
-            const response = await fetch(`http://localhost:8000/chat_sessions/${id}`, {
+            const { apiUrl } = getConfig();
+            const response = await fetch(`${apiUrl}/chat_sessions/${id}`, {
                 method: 'DELETE',
             });
             if (response.ok) {

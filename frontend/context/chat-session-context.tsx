@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import getConfig from '@/lib/config';
 
 interface ChatSessionContextType {
     sessionId: string;
@@ -15,6 +16,7 @@ const ChatSessionContext = createContext<ChatSessionContextType | undefined>(und
 export const ChatSessionProvider = ({ children }: { children: ReactNode }) => {
     const [sessionId, setSessionId] = useState<string>("");
     const [chatSessions, setChatSessions] = useState<any[]>([]);
+    const { apiUrl } = getConfig();
 
     useEffect(() => {
         // Initialize a new session ID when the provider mounts
@@ -24,7 +26,7 @@ export const ChatSessionProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchChatSessions = async () => {
         try {
-            const response = await fetch("http://localhost:8000/chat_sessions");
+            const response = await fetch(`${apiUrl}/chat_sessions`);
             if (response.ok) {
                 const data = await response.json();
                 setChatSessions(data);

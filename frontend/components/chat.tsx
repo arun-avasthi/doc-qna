@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { PaperclipIcon, BrainIcon } from "lucide-react";
 import { useChatSession } from "@/context/chat-session-context";
+import getConfig from '@/lib/config';
 
 export function Chat() {
     const { sessionId, setSessionId } = useChatSession();
@@ -22,9 +23,10 @@ export function Chat() {
     // Load messages when session changes
     useEffect(() => {
         const loadMessages = async () => {
+            const { apiUrl } = getConfig();
             if (sessionId) {
                 try {
-                    const response = await fetch(`http://localhost:8000/chat_sessions/${sessionId}/messages`);
+                    const response = await fetch(`${apiUrl}/chat_sessions/${sessionId}/messages`);
                     if (response.ok) {
                         const data = await response.json();
                         // Convert the API response to our message format
@@ -57,9 +59,10 @@ export function Chat() {
     // Fetch documents for the current session when sessionId changes
     useEffect(() => {
         const fetchDocuments = async () => {
+            const { apiUrl } = getConfig();
             if (sessionId) {
                 try {
-                    const response = await fetch(`http://localhost:8000/documents?session_id=${sessionId}`);
+                    const response = await fetch(`${apiUrl}/documents?session_id=${sessionId}`);
                     if (response.ok) {
                         const data = await response.json();
                         setDocuments(data);
@@ -89,7 +92,8 @@ export function Chat() {
         setIsLoading(true);
 
         try {
-            const response = await fetch(`http://localhost:8000/query?session_id=${sessionId}&input_message=${encodeURIComponent(userMessage.text)}`);
+            const { apiUrl } = getConfig();
+            const response = await fetch(`${apiUrl}/query?session_id=${sessionId}&input_message=${encodeURIComponent(userMessage.text)}`);
             const data = await response.json();
             const aiMessage = { 
                 sender: 'ai' as const, 
@@ -109,6 +113,7 @@ export function Chat() {
         if (!documentUrlInput.trim() && !selectedFile) return;
 
         setIsLoading(true);
+        const { apiUrl } = getConfig();
         const formData = new FormData();
         formData.append("session_id", sessionId);
 
@@ -119,7 +124,7 @@ export function Chat() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8000/upload_document`, {
+            const response = await fetch(`${apiUrl}/upload_document`, {
                 method: 'POST',
                 body: formData,
             });
@@ -157,8 +162,9 @@ export function Chat() {
     const handleDeleteDocument = async (documentId: string) => {
         console.log("Attempting to delete document:", documentId, "for session:", sessionId); // Add this line
         setIsLoading(true);
+        const { apiUrl } = getConfig();
         try {
-            const response = await fetch(`http://localhost:8000/documents/${documentId}?session_id=${sessionId}`, {
+            const response = await fetch(`${apiUrl}/documents/${documentId}?session_id=${sessionId}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
@@ -184,7 +190,8 @@ export function Chat() {
         const pollInterval = setInterval(async () => {
             if (sessionId && documents.some(doc => doc.status === "pending" || doc.status === "processing")) {
                 try {
-                    const response = await fetch(`http://localhost:8000/documents?session_id=${sessionId}`);
+                    const { apiUrl } = getConfig();
+                    const response = await fetch(`${apiUrl}/documents?session_id=${sessionId}`);
                     if (response.ok) {
                         const data = await response.json();
                         setDocuments(data);
