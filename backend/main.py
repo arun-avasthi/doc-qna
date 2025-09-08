@@ -133,3 +133,8 @@ async def delete_document_endpoint(document_id: str, session_id: str = ""):
     delete_embeddings_for_document(session_id, document_id)
     delete_document(document_id)
     return {"message": "Document deleted successfully"}
+
+# This is required for Vercel serverless deployment
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
