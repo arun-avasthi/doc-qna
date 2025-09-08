@@ -28,7 +28,7 @@ export function AppSidebar() {
 
     useEffect(() => {
         fetchChatSessions();
-    }, [fetchChatSessions]); // Add fetchChatSessions to dependency array
+    }, [fetchChatSessions]);
 
     const handleNewChat = () => {
         const newSessionId = uuidv4();

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import getConfig from '@/lib/config';
 
@@ -21,10 +21,9 @@ export const ChatSessionProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         // Initialize a new session ID when the provider mounts
         setSessionId(uuidv4());
-        fetchChatSessions();
     }, []);
 
-    const fetchChatSessions = async () => {
+    const fetchChatSessions = useCallback(async () => {
         try {
             const response = await fetch(`${apiUrl}/chat_sessions`);
             if (response.ok) {
@@ -36,7 +35,11 @@ export const ChatSessionProvider = ({ children }: { children: ReactNode }) => {
         } catch (error) {
             console.error("Error fetching chat sessions:", error);
         }
-    };
+    }, [apiUrl]);
+
+    useEffect(() => {
+        fetchChatSessions();
+    }, [fetchChatSessions]);
 
     return (
         <ChatSessionContext.Provider value={{
