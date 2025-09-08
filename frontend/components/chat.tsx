@@ -9,15 +9,15 @@ import { useChatSession } from "@/context/chat-session-context";
 import getConfig from '@/lib/config';
 
 export function Chat() {
-    const { sessionId, setSessionId } = useChatSession();
-    const [messages, setMessages] = useState<{ sender: 'user' | 'ai', text: string, sources?: any[] }[]>([]);
+    const { sessionId, setSessionId } = useChatSession(); // eslint-disable-line @typescript-eslint/no-unused-vars
+    const [messages, setMessages] = useState<{ sender: 'user' | 'ai', text: string, sources?: Array<{index: number, document_id: string, chunk_index: number, score: number, content_excerpt: string}> }[]>([]);
     const [input, setInput] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
     const [documentUrlInput, setDocumentUrlInput] = useState<string>("");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [hasDocumentUploaded, setHasDocumentUploaded] = useState<boolean>(false);
-    const [documents, setDocuments] = useState<any[]>([]);
+    const [hasDocumentUploaded, setHasDocumentUploaded] = useState<boolean>(false); // eslint-disable-line @typescript-eslint/no-unused-vars
+    const [documents, setDocuments] = useState<Array<{id: string, session_id: string, name: string, type: string, status: string, url?: string, file_path?: string, created_at: string, updated_at: string}>>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Load messages when session changes
@@ -30,7 +30,7 @@ export function Chat() {
                     if (response.ok) {
                         const data = await response.json();
                         // Convert the API response to our message format
-                        const formattedMessages = data.map((msg: any) => ({
+                        const formattedMessages = data.map((msg: {sender: string, text: string, sources?: Array<{index: number, document_id: string, chunk_index: number, score: number, content_excerpt: string}>}) => ({
                             sender: msg.sender,
                             text: msg.text,
                             sources: msg.sender === 'ai' && msg.sources && Array.isArray(msg.sources) ? msg.sources : []
@@ -67,7 +67,7 @@ export function Chat() {
                         const data = await response.json();
                         setDocuments(data);
                         // Check if any document is 'ready' to set hasDocumentUploaded
-                        const anyReady = data.some((doc: any) => doc.status === "ready");
+                        const anyReady = data.some((doc: {status: string}) => doc.status === "ready");
                         setHasDocumentUploaded(anyReady);
                     } else {
                         console.error("Failed to fetch documents for session:", sessionId);
@@ -136,7 +136,7 @@ export function Chat() {
                     {
                         id: data.document_id,
                         session_id: sessionId,
-                        name: documentUrlInput || selectedFile?.name,
+                        name: documentUrlInput || selectedFile?.name || "",
                         type: documentUrlInput ? "url" : "pdf",
                         status: "pending",
                         created_at: new Date().toISOString(),
@@ -170,7 +170,7 @@ export function Chat() {
             if (response.ok) {
                 setDocuments((prevDocs) => prevDocs.filter((doc) => doc.id !== documentId));
                 // Re-check if any document is 'ready' after deletion
-                const anyReady = documents.filter((doc) => doc.id !== documentId).some((doc: any) => doc.status === "ready");
+                const anyReady = documents.filter((doc) => doc.id !== documentId).some((doc: {status: string}) => doc.status === "ready");
                 setHasDocumentUploaded(anyReady);
             } else {
                 const data = await response.json();
@@ -195,7 +195,7 @@ export function Chat() {
                     if (response.ok) {
                         const data = await response.json();
                         setDocuments(data);
-                        const anyReady = data.some((doc: any) => doc.status === "ready");
+                        const anyReady = data.some((doc: {status: string}) => doc.status === "ready");
                         setHasDocumentUploaded(anyReady);
                     } else {
                         console.error("Failed to fetch documents for session:", sessionId);
@@ -210,7 +210,7 @@ export function Chat() {
     }, [sessionId, documents]); // Dependencies
 
     // Helper function to determine if sources should be shown
-    const shouldShowSources = (msg: { sender: 'user' | 'ai', text: string, sources?: any[] }) => {
+    const shouldShowSources = (msg: { sender: 'user' | 'ai', text: string, sources?: Array<{index: number, document_id: string, chunk_index: number, score: number, content_excerpt: string}> }) => { // eslint-disable-line @typescript-eslint/no-unused-vars
         return msg.sender === 'ai' && msg.sources && Array.isArray(msg.sources) && msg.sources.length > 0;
     };
 

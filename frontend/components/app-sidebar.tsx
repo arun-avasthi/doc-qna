@@ -28,7 +28,7 @@ export function AppSidebar() {
 
     useEffect(() => {
         fetchChatSessions();
-    }, []); // Fetch sessions only once on mount
+    }, [fetchChatSessions]); // Add fetchChatSessions to dependency array
 
     const handleNewChat = () => {
         const newSessionId = uuidv4();
